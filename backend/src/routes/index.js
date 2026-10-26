@@ -76,7 +76,8 @@ router.put('/admin/templates/:id', requireAdmin, uploadTemplateImage, templatesC
 router.delete('/admin/templates/:id', requireAdmin, templatesCtl.remove)
 
 router.get('/plans', region, optionalAuth, walletCtl.listPlans)
-router.get('/coin-packs', region, optionalAuth, walletCtl.listPacks)
+router.get('/region-debug', region, (req, res) => res.set('Cache-Control', 'no-store').json({ currency: req.currency, ip: req.ip, xRealIp: req.get('x-real-ip') || null, xForwardedFor: req.get('x-forwarded-for') || null, geoipInstalled: (() => { try { require.resolve('geoip-lite'); return true } catch { return false } })() })) // temporary: shows what the server sees, remove once prices are right
+router.get('/coin-packs', region,optionalAuth, walletCtl.listPacks)
 router.get('/wallet', requireAuth, walletCtl.getWallet)
 router.post('/wallet/redeem', authLimiter, requireAuth, walletCtl.redeem) // limited like login: codes must not be guessable by trying
 router.post('/wallet/checkout', region, requireAuth, walletCtl.checkout)

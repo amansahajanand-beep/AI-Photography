@@ -1,0 +1,37 @@
+name: Deploy to DigitalOcean Ubuntu Server
+
+on:
+  push:
+    branches: [ main, master ] # Change to your default branch if different
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+
+      - name: Deploy via SSH
+        uses: appleboy/ssh-action@v1.0.3
+        with:
+          host: ${{ secrets.SSH_HOST }}
+          username: ${{ secrets.SSH_USERNAME }}
+          key: ${{ secrets.SSH_PRIVATE_KEY }}
+          script: |
+            # 1. Navigate to your project directory (update path if different)
+            cd /var/www/pictrify || cd ~/pictrify || cd ~
+            
+            # 2. Pull the latest changes from GitHub
+            git pull origin main
+            
+            # 3. Install dependencies for backend and frontends
+            npm install
+            # If you use workspaces or separate subfolders, run builds accordingly:
+            # npm run build --workspace=frontend
+            # npm run build --workspace=dashboard
+            
+            # 4. Restart PM2 processes gracefully
+            pm2 reload all || pm2 restart all
+            
+            echo "Deployment completed successfully!"

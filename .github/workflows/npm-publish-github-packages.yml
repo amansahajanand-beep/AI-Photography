@@ -19,19 +19,20 @@ jobs:
           username: ${{ secrets.SSH_USERNAME }}
           key: ${{ secrets.SSH_PRIVATE_KEY }}
           script: |
-            # 1. Navigate to your project directory (update path if different)
-            cd /var/www/pictrify || cd ~/pictrify || cd ~
-            
-            # 2. Pull the latest changes from GitHub
+            set -e
+            cd /var/www/AI-Photography/AI-Photography
             git pull origin main
-            
-            # 3. Install dependencies for backend and frontends
+
+            # backend (port 5001)
+            cd backend
+            npm install --omit=dev
+            cd ..
+
+            # frontend (port 3000)
             npm install
-            # If you use workspaces or separate subfolders, run builds accordingly:
-            # npm run build --workspace=frontend
-            # npm run build --workspace=dashboard
-            
-            # 4. Restart PM2 processes gracefully
-            pm2 reload all || pm2 restart all
-            
+            npm run build
+
+            pm2 restart all
+            pm2 status
             echo "Deployment completed successfully!"
+
